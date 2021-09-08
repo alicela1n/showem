@@ -44,6 +44,17 @@ RESET_ATTS="$(tput sgr0)"
 declare -i ARG_HELP=0 ARG_VERSION=0 REFRESH_WAIT_SECS=1
 
 # ***************** various functions ******************
+check_for_root() {
+    # why is this here?
+    # unfortunately, the script doesn't work without root access
+    # even if your user is in the portage group, so to avoid
+    # confusion, it now requires you to run as root
+    # check for root
+    if [ "$EUID" -ne 0 ]
+        then echo "Please run as root"
+        exit 1
+    fi
+}
 cleanup_and_exit_with_code() {
     # add any additional cleanup code here
     trap - EXIT
@@ -452,6 +463,7 @@ main_monitor_loop() {
 # *************** start of script proper ***************
 check_that_stdout_is_terminal
 process_command_line_options "${@}"
+check_for_root
 main_monitor_loop # runs until Ctrl-c calls trap-handler
 cleanup_and_exit_with_code 1 # so, should not get here
 # **************** end of script proper ****************
